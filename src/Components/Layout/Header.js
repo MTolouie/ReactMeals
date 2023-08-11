@@ -3,6 +3,7 @@ import classes from "./Header.module.css";
 import mealsImage from "../../Assets/meals.jpg";
 import HeaderCartButton from "./HeaderCartButton";
 function Header() {
+  
   return (
     <Fragment>
       <header className={classes.header}>
