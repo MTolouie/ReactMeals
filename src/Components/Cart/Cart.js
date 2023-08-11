@@ -2,14 +2,31 @@ import Modal from "../UI/Modal";
 import classes from "./Cart.module.css";
 import ModalContext from "../../Store/Modal-Context";
 import { useContext } from "react";
+import CartContext from "../../Store/Cart-Context";
+import CartItem from "./CartItem";
 
 function Cart() {
-
   const modalContext = useContext(ModalContext);
+  const cartContext = useContext(CartContext);
+
+  const totalAmount = `$${cartContext.totalAmount.toFixed(2)}`;
+
+  const hasItem = cartContext.items.length > 0;
+
+  function removeFromCartHandler(id) {}
+
+  function addToCartHandler(item) {}
+
   const cartItems = (
     <ul className={classes["cart-items"]}>
-      {[{ id: "c1", name: "Sushi", amount: 2, price: 12.99 }].map((item) => (
-        <li key={item.id}>{item.name}</li>
+      {cartContext.items.map((item) => (
+        <CartItem
+          name={item.name}
+          amount={item.amount}
+          price={item.price}
+          onAdd={addToCartHandler.bind(null, item)}
+          onRemove={removeFromCartHandler.bind(null,item.id)}
+        />
       ))}
     </ul>
   );
@@ -19,11 +36,16 @@ function Cart() {
       {cartItems}
       <div className={classes.total}>
         <span>Total Amount</span>
-        <span>35.62</span>
+        <span>{totalAmount}</span>
       </div>
       <div className={classes.actions}>
-        <button onClick={modalContext.onChangeVisibility} className={classes["button--alt"]}>Close</button>
-        <button  className={classes.button}>Order</button>
+        <button
+          onClick={modalContext.onChangeVisibility}
+          className={classes["button--alt"]}
+        >
+          Close
+        </button>
+        {hasItem && <button className={classes.button}>Order</button>}
       </div>
     </Modal>
   );
