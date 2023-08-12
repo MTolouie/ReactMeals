@@ -13,9 +13,14 @@ function Cart() {
 
   const hasItem = cartContext.items.length > 0;
 
-  function removeFromCartHandler(id) {}
+  function removeFromCartHandler(id) {
+    cartContext.removeItem(id);
+  }
 
-  function addToCartHandler(item) {}
+  function addToCartHandler(item) {
+    // cartContext.addItem({item,amount:1});
+    cartContext.addItem({...item,amount:1});
+  }
 
   const cartItems = (
     <ul className={classes["cart-items"]}>
