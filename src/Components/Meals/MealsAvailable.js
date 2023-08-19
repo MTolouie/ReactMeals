@@ -1,36 +1,35 @@
 import MealItem from "./MealItem/MealItem";
 import classes from "./MealsAvailable.module.css";
 import Card from "../UI/Card";
-
-const DUMMY_MEALS = [
-  {
-    id: "m1",
-    name: "Sushi",
-    description: "Finest fish and veggies",
-    price: 22.99,
-  },
-  {
-    id: "m2",
-    name: "Schnitzel",
-    description: "A german specialty!",
-    price: 16.5,
-  },
-  {
-    id: "m3",
-    name: "Barbecue Burger",
-    description: "American, raw, meaty",
-    price: 12.99,
-  },
-  {
-    id: "m4",
-    name: "Green Bowl",
-    description: "Healthy...and green...",
-    price: 18.99,
-  },
-];
+import useHttp from "../../hooks/use-http";
+import { useEffect, useState } from "react";
+import loadingGif from "../../Assets/loadingGif.gif";
 
 function MealsAvailable() {
-  const mealsList = DUMMY_MEALS.map((meal) => {
+  const { isLoading, error, sendRequest } = useHttp();
+  const [meals, setMeals] = useState([]);
+
+  useEffect(() => {
+    let loadedMeals = [];
+    sendRequest(
+      {
+        url: "https://reactmeals-cf87c-default-rtdb.firebaseio.com/Meals.json",
+      },
+      (mealkeys) => {
+        for (const key in mealkeys) {
+          loadedMeals.push({
+            id: key,
+            price: mealkeys[key].price,
+            description: mealkeys[key].description,
+            name: mealkeys[key].name,
+          });
+        }
+        setMeals(loadedMeals);
+      }
+    );
+  }, [sendRequest]);
+
+  const mealsList = meals.map((meal) => {
     return (
       <MealItem
         id={meal.id}
@@ -42,11 +41,21 @@ function MealsAvailable() {
     );
   });
 
+  let content = <ul>{mealsList}</ul>;
+
+  if (error) {
+    content = <p>{error}</p>;
+  }
+
+  if (isLoading) {
+    content = (
+      <img src={loadingGif} width={120} height={120} alt="loading gif" />
+    );
+  }
+
   return (
     <section className={classes.meals}>
-      <Card>
-        <ul>{mealsList}</ul>
-      </Card>
+      <Card>{content}</Card>
     </section>
   );
 }
