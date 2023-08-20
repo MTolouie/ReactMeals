@@ -1,13 +1,15 @@
 import Modal from "../UI/Modal";
 import classes from "./Cart.module.css";
 import ModalContext from "../../Store/Modal-Context";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import CartContext from "../../Store/Cart-Context";
 import CartItem from "./CartItem";
+import Checkout from "./Checkout";
 
 function Cart() {
   const modalContext = useContext(ModalContext);
   const cartContext = useContext(CartContext);
+  const [isCheckout, setIsCheckout] = useState(false);
 
   const totalAmount = `$${cartContext.totalAmount.toFixed(2)}`;
 
@@ -19,7 +21,7 @@ function Cart() {
 
   function addToCartHandler(item) {
     // cartContext.addItem({item,amount:1});
-    cartContext.addItem({...item,amount:1});
+    cartContext.addItem({ ...item, amount: 1 });
   }
 
   const cartItems = (
@@ -30,10 +32,34 @@ function Cart() {
           amount={item.amount}
           price={item.price}
           onAdd={addToCartHandler.bind(null, item)}
-          onRemove={removeFromCartHandler.bind(null,item.id)}
+          onRemove={removeFromCartHandler.bind(null, item.id)}
         />
       ))}
     </ul>
+  );
+
+  const onOrderBtnClicked = () => {
+    setIsCheckout(true);
+  };
+
+  const closeCheckout = () => {
+    setIsCheckout(false);
+  };
+
+  const modalActions = (
+    <div className={classes.actions}>
+      <button
+        onClick={modalContext.onChangeVisibility}
+        className={classes["button--alt"]}
+      >
+        Close
+      </button>
+      {hasItem && (
+        <button className={classes.button} onClick={onOrderBtnClicked}>
+          Order
+        </button>
+      )}
+    </div>
   );
 
   return (
@@ -43,15 +69,8 @@ function Cart() {
         <span>Total Amount</span>
         <span>{totalAmount}</span>
       </div>
-      <div className={classes.actions}>
-        <button
-          onClick={modalContext.onChangeVisibility}
-          className={classes["button--alt"]}
-        >
-          Close
-        </button>
-        {hasItem && <button className={classes.button}>Order</button>}
-      </div>
+      {isCheckout && <Checkout closeform={closeCheckout} />}
+      {!isCheckout && modalActions}
     </Modal>
   );
 }
