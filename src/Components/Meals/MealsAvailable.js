@@ -44,13 +44,14 @@ function MealsAvailable() {
   let content = <ul>{mealsList}</ul>;
 
   if (error) {
-    content = <p>{error}</p>;
+    content = <section className={classes.mealsLoading}><h2>{error}</h2></section>;
   }
 
   if (isLoading) {
     content = (
-      <img src={loadingGif} width={120} height={120} alt="loading gif" />
-    );
+      <section className={classes.mealsLoading}>
+      <img  src={loadingGif} width={120} height={120} alt="loading gif" />
+      </section>);
   }
 
   return (
