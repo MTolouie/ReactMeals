@@ -1,6 +1,11 @@
 import classes from "./Checkout.module.css";
 import useInputValidation from "../../hooks/use-inputValidation";
+import useHttp from "../../hooks/use-http";
+import { useContext } from "react";
+import CartContext from "../../Store/Cart-Context";
 const Checkout = (props) => {
+  const cartCtx = useContext(CartContext);
+
   const {
     value: enteredName,
     isValid: enteredNameIsValid,
@@ -26,7 +31,9 @@ const Checkout = (props) => {
     onInputChangeHandler: postalInputChangeHandler,
     onInputBlurHandler: postalInputBlurHandler,
     reset: resetPostalInput,
-  } = useInputValidation((postal) => postal.trim() !== "");
+  } = useInputValidation(
+    (postal) => postal.trim() !== "" && postal.trim().length === 5
+  );
 
   const {
     value: enteredCity,
@@ -36,6 +43,8 @@ const Checkout = (props) => {
     onInputBlurHandler: cityInputBlurHandler,
     reset: resetCityInput,
   } = useInputValidation((city) => city.trim() !== "");
+
+  const { isLoading, error, sendRequest } = useHttp();
 
   let formIsValid = false;
 
@@ -51,15 +60,35 @@ const Checkout = (props) => {
   const checkoutSubmitHandler = (event) => {
     event.preventDefault();
 
-    if (
-      !enteredNameIsValid &&
-      !enteredCityIsValid &&
-      !enteredPostalIsValid &&
-      !enteredStreetIsValid
-    ) {
+    if (!formIsValid) {
       return;
     }
 
+    sendRequest(
+      {
+        url: "https://reactmeals-cf87c-default-rtdb.firebaseio.com/orders.json",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: {
+          user: {
+            name: enteredName,
+            street: enteredStreet,
+            postalCode: enteredPostal,
+            city: enteredCity,
+          },
+          items:cartCtx.items
+        },
+      },
+      null
+    );
+
+    props.showSuccessAlert();
+
+    cartCtx.clearItemsHandler();
+    props.closeform();
+    
     resetNameInput();
     resetCityInput();
     resetStreetInput();
@@ -101,7 +130,9 @@ const Checkout = (props) => {
           value={enteredStreet}
           onBlur={streetInputBlurHandler}
         />
-        {streetHasError && <p className={classes.invalid}>Street Is Not Valid</p>}
+        {streetHasError && (
+          <p className={classes.invalid}>Street Is Not Valid</p>
+        )}
       </div>
       <div className={postalInputClass}>
         <label htmlFor="postal">Postal Code</label>
@@ -112,7 +143,9 @@ const Checkout = (props) => {
           value={enteredPostal}
           onBlur={postalInputBlurHandler}
         />
-        {postalHasError && <p className={classes.invalid}>Postal Is Not Valid</p>}
+        {postalHasError && (
+          <p className={classes.invalid}>Postal Is Not Valid</p>
+        )}
       </div>
       <div className={cityInputClass}>
         <label htmlFor="city">City</label>
@@ -129,13 +162,11 @@ const Checkout = (props) => {
         <button type="button" onClick={props.closeform}>
           Cancel
         </button>
-        <button
-          disabled={!formIsValid}
-          className={classes.submit}
-        >
-          Confirm
+        <button disabled={!formIsValid} className={classes.submit}>
+          {isLoading ? "Loading ..." : "Confirm"}
         </button>
       </div>
+      {error ? <p className={classes.invalid}>{error}</p> : ""}
     </form>
   );
 };

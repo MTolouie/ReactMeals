@@ -44,3 +44,10 @@
     background-color: #8a2b06;
     color: white;
   }
+  .success{
+    color: rgb(51, 49, 49);
+    text-align: center;
+    background: transparent;
+    background-color: rgb(121, 233, 121);
+    border-radius: 2rem;
+  }

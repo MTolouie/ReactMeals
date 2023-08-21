@@ -10,6 +10,7 @@ function Cart() {
   const modalContext = useContext(ModalContext);
   const cartContext = useContext(CartContext);
   const [isCheckout, setIsCheckout] = useState(false);
+  const [isCheckoutSubmited,setIsCheckoutSubmited] = useState(false);
 
   const totalAmount = `$${cartContext.totalAmount.toFixed(2)}`;
 
@@ -62,6 +63,10 @@ function Cart() {
     </div>
   );
 
+  const showSuccess = () => {
+    setIsCheckoutSubmited(true);
+  };
+
   return (
     <Modal>
       {cartItems}
@@ -69,7 +74,10 @@ function Cart() {
         <span>Total Amount</span>
         <span>{totalAmount}</span>
       </div>
-      {isCheckout && <Checkout closeform={closeCheckout} />}
+      {isCheckoutSubmited && <h2 className={classes.success}>Form Submited</h2>}
+      {isCheckout && (
+        <Checkout showSuccessAlert={showSuccess} closeform={closeCheckout} />
+      )}
       {!isCheckout && modalActions}
     </Modal>
   );
